@@ -1,0 +1,8 @@
+Hey everyone, welcome back to the channel. Today we are talking about productivity systems
+and why most people fail to stick with them. The biggest mistake people make is choosing a
+system that is too complicated for their actual workflow. Instead, you should start with a
+simple task list, then add time blocking once that habit sticks. Automation tools can help a
+lot here, especially for repetitive tasks like scheduling, reporting, and follow ups. We will
+walk through a real example using a lightweight automation script that saves about five hours
+a week. By the end of this video you will have a clear, repeatable system you can set up in
+under thirty minutes. Let's get started.
