@@ -46,6 +46,18 @@ def test_generate_thumbnail_ideas_count():
     assert all("headline" in i for i in ideas)
 
 
+def test_generate_titles_has_no_repeated_adjacent_words():
+    # Regression: question words like "why"/"how" leaking into keywords collided
+    # with templates like "Why {kw} Matters", producing "Why Why Matters...".
+    titles = seo.generate_titles(
+        "Why does this happen? Why do people struggle with automation and systems?"
+    )
+    for title in titles:
+        words = title.lower().split()
+        for a, b in zip(words, words[1:]):
+            assert a != b, f"repeated word in title: {title!r}"
+
+
 def test_schedule_spreads_across_platforms_without_duplicate_slots():
     items = [{"title": f"Post {i}", "score": 100 - i} for i in range(3)]
     schedule = scheduler.build_schedule(items, ["youtube", "tiktok"], start_date=datetime(2026, 9, 7))

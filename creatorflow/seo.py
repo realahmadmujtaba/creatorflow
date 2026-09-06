@@ -14,7 +14,7 @@ STOPWORDS = {
     "you", "your", "i", "my", "our", "us", "they", "them", "he", "she", "his",
     "her", "have", "has", "had", "do", "does", "did", "not", "will", "would",
     "can", "could", "should", "just", "about", "into", "up", "out", "than",
-    "then", "there", "here", "what", "when", "where", "how", "all", "some",
+    "then", "there", "here", "what", "when", "where", "how", "why", "all", "some",
     "more", "very", "really", "like", "get", "got", "one", "going", "gonna",
     # spoken-video filler / intro boilerplate that isn't a real topic keyword
     "hey", "hi", "hello", "everyone", "everybody", "guys", "welcome", "back",
@@ -23,6 +23,7 @@ STOPWORDS = {
     "please", "subscribe", "comment", "comments", "click", "link", "below",
     "start", "started", "began", "began", "little", "bit", "lot", "thing",
     "things", "stuff", "way", "ways", "make", "made", "actually", "basically",
+    "people", "most", "many", "much", "well", "even", "still", "also",
 }
 
 TITLE_TEMPLATES = [
