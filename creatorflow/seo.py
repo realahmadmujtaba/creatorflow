@@ -24,13 +24,30 @@ STOPWORDS = {
     "start", "started", "began", "began", "little", "bit", "lot", "thing",
     "things", "stuff", "way", "ways", "make", "made", "actually", "basically",
     "people", "most", "many", "much", "well", "even", "still", "also",
+    "their", "too", "them",
+}
+
+# Extracted keywords that are grammatically verb/state-shaped rather than a
+# concrete topic noun. They're legitimate for tags/description (real topical
+# signal), but dropped into a title template they produce nonsense like
+# "Why Fail Matters More Than You Think" or "How to Choosing (Step by Step)"
+# -- the same class of bug as a stray question word colliding with a
+# template (see test_generate_titles_has_no_repeated_adjacent_words), just
+# not adjacent-word repetition so that regression test can't catch it.
+TITLE_UNSUITABLE_KEYWORDS = {
+    "fail", "failed", "failing", "stick", "stuck", "choosing", "chose",
+    "start", "started", "starting", "stop", "stopped",
+    # bare superlatives/adjectives never work as a standalone title noun
+    # ("Why Biggest Matters More Than You Think").
+    "biggest", "smallest", "best", "worst", "hardest", "easiest",
+    "largest", "highest", "lowest", "important", "complicated",
 }
 
 TITLE_TEMPLATES = [
     "{kw} Explained: What You Need to Know",
     "The Truth About {kw}",
     "{kw} in {n} Minutes",
-    "How to {kw} (Step by Step)",
+    "The {kw} Playbook (Step by Step)",
     "Why {kw} Matters More Than You Think",
 ]
 
@@ -45,7 +62,9 @@ def extract_keywords(transcript: str, top_n: int = 8) -> list[str]:
 
 
 def generate_titles(transcript: str, count: int = 5) -> list[str]:
-    keywords = extract_keywords(transcript, top_n=count)
+    keywords = extract_keywords(transcript, top_n=max(count, 8))
+    keywords = [kw for kw in keywords if kw not in TITLE_UNSUITABLE_KEYWORDS] or keywords
+    keywords = keywords[:count]
     if not keywords:
         keywords = ["This Topic"]
     titles = []

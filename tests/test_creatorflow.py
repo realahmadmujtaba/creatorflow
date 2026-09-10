@@ -58,6 +58,23 @@ def test_generate_titles_has_no_repeated_adjacent_words():
             assert a != b, f"repeated word in title: {title!r}"
 
 
+def test_generate_titles_skips_verb_shaped_keywords():
+    # Regression: "fail"/"stick"/"choosing" etc. are real topical keywords
+    # (fine for tags/description) but read as nonsense once substituted into
+    # a title template, e.g. "Why Fail Matters More Than You Think" or
+    # "How to Systems (Step by Step)". These words shouldn't anchor a title.
+    transcript = (
+        "Hey everyone, welcome back to the channel. Today we are talking about "
+        "productivity systems and why most people fail to stick with them. The "
+        "biggest mistake people make is choosing a system that is too complicated "
+        "for their actual workflow."
+    )
+    titles = seo.generate_titles(transcript)
+    joined = " ".join(titles).lower()
+    for bad in seo.TITLE_UNSUITABLE_KEYWORDS:
+        assert bad not in joined, f"unsuitable keyword {bad!r} leaked into a title: {titles!r}"
+
+
 def test_schedule_spreads_across_platforms_without_duplicate_slots():
     items = [{"title": f"Post {i}", "score": 100 - i} for i in range(3)]
     schedule = scheduler.build_schedule(items, ["youtube", "tiktok"], start_date=datetime(2026, 9, 7))
