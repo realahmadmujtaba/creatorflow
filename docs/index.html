@@ -2,78 +2,600 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>CreatorFlow Report</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CreatorFlow</title>
 <style>
-  body { font-family: -apple-system, Segoe UI, Arial, sans-serif; max-width: 900px;
-         margin: 40px auto; padding: 0 20px; color: #1a1a1a; background: #fafafa; }
-  h1 { font-size: 1.8rem; }
-  h2 { margin-top: 2.5rem; border-bottom: 2px solid #eee; padding-bottom: 6px; }
-  .card { background: white; border: 1px solid #e5e5e5; border-radius: 8px;
-           padding: 16px 20px; margin: 10px 0; }
-  .score { display: inline-block; background: #16a34a; color: white; font-weight: 700;
-            padding: 2px 10px; border-radius: 999px; font-size: 0.85rem; }
-  .tag { display: inline-block; background: #eef2ff; color: #3730a3; padding: 2px 8px;
-          border-radius: 6px; margin: 2px; font-size: 0.85rem; }
+  :root {
+    --bg: #f6f5f2;
+    --surface: #ffffff;
+    --border: #e6e4de;
+    --text: #1a1a1a;
+    --text-dim: #5a5a55;
+    --accent: #4338ca;
+    --accent-dim: #eef2ff;
+    --accent-text: #3730a3;
+    --good: #16a34a;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.5;
+  }
+  header { margin-bottom: 28px; }
+  h1 { font-size: 1.9rem; margin: 0 0 6px; letter-spacing: -0.02em; }
+  .tagline { color: var(--text-dim); margin: 0; max-width: 62ch; }
+  .badges { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .badge {
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em;
+    background: var(--accent-dim); color: var(--accent-text);
+    padding: 3px 9px; border-radius: 999px; font-weight: 600;
+  }
+
+  .layout { display: grid; grid-template-columns: minmax(280px, 380px) 1fr; gap: 24px; align-items: start; }
+  @media (max-width: 820px) { .layout { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; position: sticky; top: 20px;
+  }
+  @media (max-width: 820px) { .panel { position: static; } }
+  .panel h2 { font-size: 1rem; margin: 0 0 14px; }
+  label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--text-dim); margin: 14px 0 6px; }
+  label:first-of-type { margin-top: 0; }
+  textarea {
+    width: 100%; min-height: 220px; resize: vertical; font: inherit; font-size: 0.88rem;
+    padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: #fcfcfb;
+  }
+  textarea:focus, input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .file-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+  .file-row input[type="file"] { font-size: 0.8rem; max-width: 100%; }
+  .platform-grid { display: flex; flex-wrap: wrap; gap: 8px 14px; }
+  .platform-grid label {
+    display: flex; align-items: center; gap: 6px; font-weight: 400; color: var(--text);
+    margin: 0; font-size: 0.88rem; text-transform: none; letter-spacing: normal;
+  }
+  .wpm-row { display: flex; align-items: center; gap: 10px; }
+  .wpm-row input[type="number"] { width: 80px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; font: inherit; }
+  .actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  button {
+    font: inherit; font-size: 0.88rem; font-weight: 600; padding: 10px 16px; border-radius: 8px;
+    border: 1px solid transparent; cursor: pointer;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: #372ea8; }
+  .btn-secondary { background: var(--surface); color: var(--text); border-color: var(--border); }
+  .btn-secondary:hover { background: #f2f1ec; }
+  .privacy-note { margin-top: 14px; font-size: 0.78rem; color: var(--text-dim); }
+
+  .results h2 { margin-top: 0; font-size: 1.15rem; border-bottom: 2px solid var(--border); padding-bottom: 8px; }
+  .results section + section { margin-top: 28px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px 20px; margin-top: 10px;
+  }
+  .score { display: inline-block; background: var(--good); color: white; font-weight: 700;
+           padding: 2px 10px; border-radius: 999px; font-size: 0.82rem; }
+  .tag { display: inline-block; background: var(--accent-dim); color: var(--accent-text);
+         padding: 2px 8px; border-radius: 6px; margin: 2px 4px 2px 0; font-size: 0.82rem; }
   table { width: 100%; border-collapse: collapse; }
-  th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
-  pre { white-space: pre-wrap; background: #111; color: #d1fae5; padding: 12px;
-         border-radius: 6px; font-size: 0.8rem; max-height: 300px; overflow: auto; }
-  .notes { color: #555; font-size: 0.85rem; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border); font-size: 0.86rem; }
+  th { color: var(--text-dim); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  td { font-variant-numeric: tabular-nums; }
+  pre { white-space: pre-wrap; background: #14161a; color: #d1fae5; padding: 12px;
+        border-radius: 8px; font-size: 0.78rem; max-height: 260px; overflow: auto; font-family: var(--mono); }
+  .notes { color: var(--text-dim); font-size: 0.82rem; }
+  .table-wrap { overflow-x: auto; }
+  .downloads { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .downloads a {
+    font-size: 0.78rem; text-decoration: none; color: var(--accent-text); background: var(--accent-dim);
+    padding: 5px 10px; border-radius: 6px; font-weight: 600;
+  }
+  .downloads a:hover { background: #e0e4fb; }
+  .empty {
+    background: var(--surface); border: 1px dashed var(--border); border-radius: 10px;
+    padding: 40px 20px; text-align: center; color: var(--text-dim);
+  }
+  footer { margin-top: 48px; font-size: 0.8rem; color: var(--text-dim); text-align: center; }
+  footer a { color: var(--accent-text); }
 </style>
 </head>
 <body>
-  <h1>CreatorFlow &mdash; Automated Creator Workflow Report</h1>
-  <p class="notes">Generated for the AI Content Engine Hackathon. Every section below is
-  real output from the transcript you provided &mdash; nothing here is a mockup.</p>
 
-  <h2>1. SEO Metadata</h2>
-  <div class="card">
-    <p><strong>Recommended title:</strong> System Explained: What You Need to Know <span class="score">SEO score: 35/100</span></p>
-    <p><strong>Alternate titles:</strong></p>
-    <ul><li>The Truth About Automation</li><li>Productivity in 3 Minutes</li><li>The Systems Playbook (Step by Step)</li><li>Why Mistake Matters More Than You Think</li></ul>
-    <p><strong>Description:</strong><br>Hey everyone, welcome back to the channel. Today we are talking about productivity systems and why most people fail to stick with them. The biggest mistake people make is choosing a system that is too complicated for their actual workflow.<br><br>Topics covered: system, automation, productivity, systems, fail, stick.</p>
-    <p><strong>Tags:</strong> <span class="tag">system</span><span class="tag">automation</span><span class="tag">productivity</span><span class="tag">systems</span><span class="tag">fail</span><span class="tag">stick</span><span class="tag">biggest</span><span class="tag">mistake</span><span class="tag">choosing</span><span class="tag">complicated</span><span class="tag">actual</span><span class="tag">workflow</span></p>
-    <p><strong>Hashtags:</strong> #system #automation #productivity #systems #fail #stick</p>
-    <p class="notes">Scoring rationale: Title length 39 chars is outside 40-70 (optimize for CTR); Description could be expanded for better indexing; Has 5+ tags for discoverability (+20); No duplicate tags (+15)</p>
+<header>
+  <h1>CreatorFlow</h1>
+  <p class="tagline">Paste or upload a transcript. Get captions, SEO metadata, thumbnail ideas, and a
+  posting schedule back in one pass &mdash; entirely in this browser tab.</p>
+  <div class="badges">
+    <span class="badge">Runs 100% client-side</span>
+    <span class="badge">No upload, no server</span>
+    <span class="badge">No API key required</span>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="panel">
+    <h2>1. Your transcript</h2>
+    <label for="transcript-input">Transcript text</label>
+    <textarea id="transcript-input" spellcheck="false"></textarea>
+    <div class="file-row">
+      <input type="file" id="file-input" accept=".txt,text/plain">
+      <button type="button" class="btn-secondary" id="sample-btn">Load sample</button>
+    </div>
+
+    <label>Platforms to schedule</label>
+    <div class="platform-grid" id="platform-grid">
+      <label><input type="checkbox" value="youtube" checked> YouTube</label>
+      <label><input type="checkbox" value="tiktok" checked> TikTok</label>
+      <label><input type="checkbox" value="instagram" checked> Instagram</label>
+      <label><input type="checkbox" value="x"> X</label>
+      <label><input type="checkbox" value="linkedin"> LinkedIn</label>
+    </div>
+
+    <label for="wpm-input">Speaking rate (words / min)</label>
+    <div class="wpm-row">
+      <input type="number" id="wpm-input" value="150" min="80" max="220" step="5">
+      <span class="notes">used to time caption cues</span>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn-primary" id="generate-btn">Generate</button>
+      <button type="button" class="btn-secondary" id="clear-btn">Clear</button>
+    </div>
+    <p class="privacy-note">Everything runs in JavaScript in your browser. Your transcript is never sent
+    anywhere &mdash; there's no backend to send it to.</p>
   </div>
 
-  <h2>2. Captions (20 cues, 0.8 min estimated)</h2>
-  <div class="card">
-    <pre>1
-00:00:00,000 --&gt; 00:00:02,800
-Hey everyone, welcome back to the channel.
-
-2
-00:00:02,800 --&gt; 00:00:05,200
-Today we are talking about productivity
-
-3
-00:00:05,200 --&gt; 00:00:08,400
-systems and why most people fail to stick
-
-4
-00:00:08,400 --&gt; 00:00:09,600
-with them.
-
-5
-00:00:09,600 --&gt; 00:00:12,000
-The biggest mistake people make is
-</pre>
-    <p class="notes">Full .srt and .vtt files written alongside this report.</p>
+  <div class="results" id="results">
+    <div class="empty" id="empty-state">Paste a transcript and press Generate to see captions, SEO metadata, thumbnail ideas, and a posting schedule appear here.</div>
+    <div id="output" hidden></div>
   </div>
+</div>
 
-  <h2>3. Thumbnail Ideas</h2>
-  <div class="card">
-    <table><tr><th>Headline</th><th>On-image text</th><th>Focus keyword</th></tr>
-    <tr><td>I Was WRONG About System</td><td>I WAS WRONG ABOUT SYSTEM</td><td>System</td></tr><tr><td>Automation: The Untold Story</td><td>AUTOMATION: THE...</td><td>Automation</td></tr><tr><td>STOP Doing Productivity Like This</td><td>STOP DOING...</td><td>Productivity</td></tr><tr><td>Systems Changed Everything</td><td>SYSTEMS CHANGED...</td><td>Systems</td></tr><tr><td>The Mistake Nobody Talks About</td><td>THE MISTAKE NOBODY...</td><td>Mistake</td></tr><tr><td>System in 60 Seconds</td><td>SYSTEM IN 60 SECONDS</td><td>System</td></tr>
-    </table>
-  </div>
+<footer>
+  Built for the AI Content Engine Hackathon &mdash;
+  <a href="https://github.com/realahmadmujtaba/creatorflow">source on GitHub</a> &middot;
+  the same logic also ships as a zero-dependency Python CLI in this repo.
+</footer>
 
-  <h2>4. Posting Schedule</h2>
-  <div class="card">
-    <table><tr><th>When</th><th>Platform</th><th>Content</th><th>Priority</th></tr>
-    <tr><td>2026-09-10T09:00:00</td><td>tiktok</td><td>System Explained: What You Need to Know</td><td>35</td></tr><tr><td>2026-09-10T11:00:00</td><td>instagram</td><td>System Explained: What You Need to Know</td><td>35</td></tr><tr><td>2026-09-10T14:00:00</td><td>youtube</td><td>System Explained: What You Need to Know</td><td>35</td></tr><tr><td>2026-09-11T12:00:00</td><td>tiktok</td><td>The Truth About Automation</td><td>35</td></tr><tr><td>2026-09-11T13:00:00</td><td>instagram</td><td>The Truth About Automation</td><td>35</td></tr><tr><td>2026-09-11T17:00:00</td><td>youtube</td><td>The Truth About Automation</td><td>35</td></tr><tr><td>2026-09-12T19:00:00</td><td>tiktok</td><td>Productivity in 3 Minutes</td><td>35</td></tr><tr><td>2026-09-12T19:30:00</td><td>instagram</td><td>Productivity in 3 Minutes</td><td>35</td></tr><tr><td>2026-09-12T20:00:00</td><td>youtube</td><td>Productivity in 3 Minutes</td><td>35</td></tr><tr><td>2026-09-14T09:00:00</td><td>tiktok</td><td>The Systems Playbook (Step by Step)</td><td>35</td></tr><tr><td>2026-09-14T11:00:00</td><td>instagram</td><td>The Systems Playbook (Step by Step)</td><td>35</td></tr><tr><td>2026-09-14T14:00:00</td><td>youtube</td><td>The Systems Playbook (Step by Step)</td><td>35</td></tr><tr><td>2026-09-15T12:00:00</td><td>tiktok</td><td>Why Mistake Matters More Than You Think</td><td>35</td></tr><tr><td>2026-09-15T13:00:00</td><td>instagram</td><td>Why Mistake Matters More Than You Think</td><td>35</td></tr><tr><td>2026-09-15T17:00:00</td><td>youtube</td><td>Why Mistake Matters More Than You Think</td><td>35</td></tr>
-    </table>
-  </div>
+<script>
+(function () {
+  "use strict";
+
+  // ---------- ported from creatorflow/seo.py ----------
+  var STOPWORDS = new Set([
+    "the","a","an","and","or","but","if","so","of","to","in","on",
+    "for","is","are","was","were","be","been","being","it","its",
+    "this","that","these","those","with","as","at","by","from","we",
+    "you","your","i","my","our","us","they","them","he","she","his",
+    "her","have","has","had","do","does","did","not","will","would",
+    "can","could","should","just","about","into","up","out","than",
+    "then","there","here","what","when","where","how","why","all","some",
+    "more","very","really","like","get","got","one","going","gonna",
+    "hey","hi","hello","everyone","everybody","guys","welcome","back",
+    "channel","today","video","videos","talking","talk","let","lets",
+    "let's","okay","ok","alright","yeah","um","uh","thanks","thank",
+    "please","subscribe","comment","comments","click","link","below",
+    "start","started","began","little","bit","lot","thing",
+    "things","stuff","way","ways","make","made","actually","basically",
+    "people","most","many","much","well","even","still","also",
+    "their","too","them"
+  ]);
+
+  var TITLE_UNSUITABLE_KEYWORDS = new Set([
+    "fail","failed","failing","stick","stuck","choosing","chose",
+    "start","started","starting","stop","stopped",
+    "biggest","smallest","best","worst","hardest","easiest",
+    "largest","highest","lowest","important","complicated"
+  ]);
+
+  var TITLE_TEMPLATES = [
+    "{kw} Explained: What You Need to Know",
+    "The Truth About {kw}",
+    "{kw} in {n} Minutes",
+    "The {kw} Playbook (Step by Step)",
+    "Why {kw} Matters More Than You Think"
+  ];
+
+  var HOOK_WORDS = new Set(["secret","mistake","warning","truth","proven","free","new","best","worst"]);
+
+  function titleCase(word) {
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }
+
+  function extractKeywords(transcript, topN) {
+    topN = topN || 8;
+    var words = transcript.toLowerCase().match(/[a-z][a-z'-]{2,}/g) || [];
+    var counts = new Map();
+    for (var i = 0; i < words.length; i++) {
+      var w = words[i];
+      if (STOPWORDS.has(w)) continue;
+      counts.set(w, (counts.get(w) || 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .sort(function (a, b) { return b[1] - a[1]; })
+      .slice(0, topN)
+      .map(function (e) { return e[0]; });
+  }
+
+  function generateTitles(transcript, count) {
+    count = count || 5;
+    var keywords = extractKeywords(transcript, Math.max(count, 8));
+    var filtered = keywords.filter(function (k) { return !TITLE_UNSUITABLE_KEYWORDS.has(k); });
+    keywords = filtered.length ? filtered : keywords;
+    keywords = keywords.slice(0, count);
+    if (!keywords.length) keywords = ["this topic"];
+
+    var wordCount = transcript.split(/\s+/).filter(Boolean).length;
+    var n = Math.max(3, Math.min(15, Math.floor(wordCount / 130)));
+
+    var titles = [];
+    var templateCount = Math.min(count, TITLE_TEMPLATES.length);
+    for (var i = 0; i < templateCount; i++) {
+      var kw = titleCase(keywords[i % keywords.length]);
+      titles.push(TITLE_TEMPLATES[i].replace("{kw}", kw).replace("{n}", n));
+    }
+    return titles;
+  }
+
+  function generateDescription(transcript, maxSentences) {
+    maxSentences = maxSentences || 3;
+    var text = transcript.replace(/\s+/g, " ").trim();
+    var sentences = text.split(/(?<=[.!?])\s+/).filter(Boolean);
+    var lead = sentences.slice(0, maxSentences).join(" ");
+    var keywords = extractKeywords(transcript, 6);
+    var tail = keywords.length ? "Topics covered: " + keywords.join(", ") + "." : "";
+    return (lead + "\n\n" + tail).trim();
+  }
+
+  function generateTags(transcript, topN) { return extractKeywords(transcript, topN || 12); }
+
+  function generateHashtags(transcript, topN) {
+    return extractKeywords(transcript, topN || 6).map(function (k) { return "#" + k.replace(/\s+/g, ""); });
+  }
+
+  function seoScore(title, description, tags) {
+    var score = 0;
+    var notes = [];
+    if (title.length >= 40 && title.length <= 70) {
+      score += 25;
+      notes.push("Title length is in the optimal 40-70 char range (+25)");
+    } else {
+      notes.push("Title length " + title.length + " chars is outside 40-70 (optimize for CTR)");
+    }
+    var lower = title.toLowerCase();
+    var hasHook = Array.from(HOOK_WORDS).some(function (w) { return lower.indexOf(w) !== -1; });
+    if (hasHook) { score += 15; notes.push("Title contains a curiosity/authority hook word (+15)"); }
+    if (description.length >= 70 && description.length <= 300) {
+      score += 25;
+      notes.push("Description length is search-friendly (+25)");
+    } else {
+      notes.push("Description could be expanded for better indexing");
+    }
+    if (tags.length >= 5) { score += 20; notes.push("Has 5+ tags for discoverability (+20)"); }
+    if (new Set(tags).size === tags.length) { score += 15; notes.push("No duplicate tags (+15)"); }
+    return { score: Math.min(score, 100), notes: notes };
+  }
+
+  // ---------- ported from creatorflow/thumbnails.py ----------
+  var THUMB_PATTERNS = [
+    "I Was WRONG About {kw}",
+    "{kw}: The Untold Story",
+    "STOP Doing {kw} Like This",
+    "{kw} Changed Everything",
+    "The {kw} Nobody Talks About",
+    "{kw} in 60 Seconds"
+  ];
+
+  function generateThumbnailIdeas(transcript, count) {
+    count = count || 6;
+    var keywords = extractKeywords(transcript, Math.max(count, 8));
+    var filtered = keywords.filter(function (k) { return !TITLE_UNSUITABLE_KEYWORDS.has(k); });
+    keywords = filtered.length ? filtered : keywords;
+    keywords = keywords.slice(0, count);
+    if (!keywords.length) keywords = ["this"];
+
+    var ideas = [];
+    for (var i = 0; i < count; i++) {
+      var kw = titleCase(keywords[i % keywords.length]);
+      var pattern = THUMB_PATTERNS[i % THUMB_PATTERNS.length];
+      var headline = pattern.replace("{kw}", kw);
+      var onImage = headline.toUpperCase();
+      if (onImage.length > 24) {
+        var truncated = onImage.slice(0, 21);
+        var idx = truncated.lastIndexOf(" ");
+        if (idx >= 0) truncated = truncated.slice(0, idx);
+        onImage = truncated + "...";
+      }
+      ideas.push({ headline: headline, on_image_text: onImage, suggested_focus_keyword: kw });
+    }
+    return ideas;
+  }
+
+  // ---------- ported from creatorflow/captions.py ----------
+  var MAX_CHARS_PER_LINE = 42;
+
+  function splitIntoSentences(transcript) {
+    var text = transcript.replace(/\s+/g, " ").trim();
+    return text.split(/(?<=[.!?])\s+/).filter(Boolean);
+  }
+
+  function chunkSentence(sentence, maxChars) {
+    maxChars = maxChars || MAX_CHARS_PER_LINE;
+    var words = sentence.split(/\s+/).filter(Boolean);
+    var chunks = [];
+    var current = [];
+    for (var i = 0; i < words.length; i++) {
+      var candidate = current.concat([words[i]]).join(" ");
+      if (candidate.length > maxChars && current.length) {
+        chunks.push(current.join(" "));
+        current = [words[i]];
+      } else {
+        current.push(words[i]);
+      }
+    }
+    if (current.length) chunks.push(current.join(" "));
+    return chunks;
+  }
+
+  function generateCues(transcript, wpm) {
+    wpm = wpm || 150;
+    var secondsPerWord = 60.0 / wpm;
+    var cues = [];
+    var clock = 0.0;
+    var index = 1;
+    var sentences = splitIntoSentences(transcript);
+    for (var s = 0; s < sentences.length; s++) {
+      var chunks = chunkSentence(sentences[s]);
+      for (var c = 0; c < chunks.length; c++) {
+        var chunk = chunks[c];
+        var wordCount = Math.max(chunk.split(/\s+/).filter(Boolean).length, 1);
+        var duration = Math.max(wordCount * secondsPerWord, 1.2);
+        cues.push({ index: index, start: clock, end: clock + duration, text: chunk });
+        clock += duration;
+        index += 1;
+      }
+    }
+    return cues;
+  }
+
+  function pad(n, width) {
+    var s = String(n);
+    while (s.length < width) s = "0" + s;
+    return s;
+  }
+
+  function formatTimestampSrt(seconds) {
+    var ms = Math.round(seconds * 1000);
+    var h = Math.floor(ms / 3600000); ms -= h * 3600000;
+    var m = Math.floor(ms / 60000); ms -= m * 60000;
+    var s = Math.floor(ms / 1000); ms -= s * 1000;
+    return pad(h, 2) + ":" + pad(m, 2) + ":" + pad(s, 2) + "," + pad(ms, 3);
+  }
+
+  function formatTimestampVtt(seconds) { return formatTimestampSrt(seconds).replace(",", "."); }
+
+  function toSrt(cues) {
+    var lines = [];
+    cues.forEach(function (cue) {
+      lines.push(String(cue.index));
+      lines.push(formatTimestampSrt(cue.start) + " --> " + formatTimestampSrt(cue.end));
+      lines.push(cue.text);
+      lines.push("");
+    });
+    return lines.join("\n");
+  }
+
+  function toVtt(cues) {
+    var lines = ["WEBVTT", ""];
+    cues.forEach(function (cue) {
+      lines.push(formatTimestampVtt(cue.start) + " --> " + formatTimestampVtt(cue.end));
+      lines.push(cue.text);
+      lines.push("");
+    });
+    return lines.join("\n");
+  }
+
+  // ---------- ported from creatorflow/scheduler.py ----------
+  var BEST_SLOTS = {
+    youtube: [[14, 0], [17, 0], [20, 0]],
+    tiktok: [[9, 0], [12, 0], [19, 0]],
+    instagram: [[11, 0], [13, 0], [19, 30]],
+    x: [[8, 0], [12, 30], [17, 0]],
+    linkedin: [[8, 30], [10, 0], [12, 0]]
+  };
+  var DEFAULT_SLOTS = [[9, 0], [13, 0], [18, 0]];
+
+  function toLocalIso(date) {
+    return date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) +
+      "T" + pad(date.getHours(), 2) + ":" + pad(date.getMinutes(), 2) + ":" + pad(date.getSeconds(), 2);
+  }
+
+  function buildSchedule(items, platforms, startDate, days) {
+    days = days || 7;
+    var ranked = items.slice().sort(function (a, b) { return (b.score || 0) - (a.score || 0); });
+    var scheduled = [];
+    var slotCursor = {};
+    platforms.forEach(function (p) { slotCursor[p] = 0; });
+    var dayCursor = 0;
+
+    ranked.forEach(function (item) {
+      platforms.forEach(function (platform) {
+        var slots = BEST_SLOTS[platform.toLowerCase()] || DEFAULT_SLOTS;
+        var slotIdx = slotCursor[platform] % slots.length;
+        var dayOffset = dayCursor + Math.floor(slotCursor[platform] / slots.length);
+        if (dayOffset >= days) dayOffset = dayOffset % days;
+        var hour = slots[slotIdx][0], minute = slots[slotIdx][1];
+        var publishAt = new Date(startDate.getTime());
+        publishAt.setDate(publishAt.getDate() + dayOffset);
+        publishAt.setHours(hour, minute, 0, 0);
+        scheduled.push({ title: item.title, platform: platform, publish_at: publishAt, priority_score: item.score || 0 });
+        slotCursor[platform] += 1;
+      });
+      dayCursor += 1;
+    });
+
+    scheduled.sort(function (a, b) { return a.publish_at - b.publish_at; });
+    return scheduled;
+  }
+
+  // ---------- pipeline + rendering ----------
+  var SAMPLE_TRANSCRIPT = "Hey everyone, welcome back to the channel. Today we are talking about productivity systems\n" +
+    "and why most people fail to stick with them. The biggest mistake people make is choosing a\n" +
+    "system that is too complicated for their actual workflow. Instead, you should start with a\n" +
+    "simple task list, then add time blocking once that habit sticks. Automation tools can help a\n" +
+    "lot here, especially for repetitive tasks like scheduling, reporting, and follow ups. We will\n" +
+    "walk through a real example using a lightweight automation script that saves about five hours\n" +
+    "a week. By the end of this video you will have a clear, repeatable system you can set up in\n" +
+    "under thirty minutes. Let's get started.";
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  function download(filename, content, mime) {
+    var blob = new Blob([content], { type: mime || "text/plain" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function renderResults(data) {
+    var out = document.getElementById("output");
+    var title_alts = data.titles.slice(1).map(function (t) { return "<li>" + escapeHtml(t) + "</li>"; }).join("");
+    var tags = data.tags.map(function (t) { return '<span class="tag">' + escapeHtml(t) + "</span>"; }).join("");
+    var hashtags = data.hashtags.join(" ");
+    var seoNotes = data.seoEval.notes.join("; ");
+    var durationMin = data.cues.length ? Math.round((data.cues[data.cues.length - 1].end / 60) * 10) / 10 : 0;
+    var srtPreview = data.srtText.split("\n").slice(0, 20).join("\n");
+
+    var thumbRows = data.thumbIdeas.map(function (t) {
+      return "<tr><td>" + escapeHtml(t.headline) + "</td><td>" + escapeHtml(t.on_image_text) +
+        "</td><td>" + escapeHtml(t.suggested_focus_keyword) + "</td></tr>";
+    }).join("");
+
+    var schedRows = data.schedule.map(function (s) {
+      return "<tr><td>" + toLocalIso(s.publish_at) + "</td><td>" + escapeHtml(s.platform) +
+        "</td><td>" + escapeHtml(s.title) + "</td><td>" + s.priority_score + "</td></tr>";
+    }).join("");
+
+    out.innerHTML =
+      '<section><h2>1. SEO Metadata</h2><div class="card">' +
+      '<p><strong>Recommended title:</strong> ' + escapeHtml(data.titles[0] || "") +
+      ' <span class="score">SEO score: ' + data.seoEval.score + '/100</span></p>' +
+      '<p><strong>Alternate titles:</strong></p><ul>' + title_alts + '</ul>' +
+      '<p><strong>Description:</strong><br>' + escapeHtml(data.description).replace(/\n/g, "<br>") + '</p>' +
+      '<p><strong>Tags:</strong> ' + tags + '</p>' +
+      '<p><strong>Hashtags:</strong> ' + escapeHtml(hashtags) + '</p>' +
+      '<p class="notes">Scoring rationale: ' + escapeHtml(seoNotes) + '</p>' +
+      '<div class="downloads"><a href="#" data-dl="seo">Download seo_metadata.json</a></div>' +
+      '</div></section>' +
+
+      '<section><h2>2. Captions (' + data.cues.length + ' cues, ' + durationMin + ' min estimated)</h2>' +
+      '<div class="card"><pre>' + escapeHtml(srtPreview) + '</pre>' +
+      '<div class="downloads"><a href="#" data-dl="srt">Download captions.srt</a>' +
+      '<a href="#" data-dl="vtt">Download captions.vtt</a></div>' +
+      '</div></section>' +
+
+      '<section><h2>3. Thumbnail Ideas</h2><div class="card table-wrap"><table>' +
+      '<tr><th>Headline</th><th>On-image text</th><th>Focus keyword</th></tr>' + thumbRows + '</table>' +
+      '<div class="downloads"><a href="#" data-dl="thumbs">Download thumbnails.json</a></div>' +
+      '</div></section>' +
+
+      '<section><h2>4. Posting Schedule</h2><div class="card table-wrap"><table>' +
+      '<tr><th>When</th><th>Platform</th><th>Content</th><th>Priority</th></tr>' + schedRows + '</table>' +
+      '<div class="downloads"><a href="#" data-dl="schedule">Download schedule.json</a></div>' +
+      '</div></section>';
+
+    out.querySelectorAll("[data-dl]").forEach(function (link) {
+      link.addEventListener("click", function (e) {
+        e.preventDefault();
+        var kind = link.getAttribute("data-dl");
+        if (kind === "srt") download("captions.srt", data.srtText);
+        if (kind === "vtt") download("captions.vtt", data.vttText);
+        if (kind === "seo") download("seo_metadata.json", JSON.stringify({
+          titles: data.titles, description: data.description, tags: data.tags,
+          hashtags: data.hashtags, score: data.seoEval
+        }, null, 2), "application/json");
+        if (kind === "thumbs") download("thumbnails.json", JSON.stringify(data.thumbIdeas, null, 2), "application/json");
+        if (kind === "schedule") download("schedule.json", JSON.stringify(
+          data.schedule.map(function (s) {
+            return { title: s.title, platform: s.platform, publish_at: toLocalIso(s.publish_at), priority_score: s.priority_score };
+          }), null, 2), "application/json");
+      });
+    });
+
+    document.getElementById("empty-state").hidden = true;
+    out.hidden = false;
+  }
+
+  function runPipeline(transcript, platforms, wpm) {
+    var cues = generateCues(transcript, wpm);
+    var srtText = toSrt(cues);
+    var vttText = toVtt(cues);
+    var titles = generateTitles(transcript);
+    var description = generateDescription(transcript);
+    var tags = generateTags(transcript);
+    var hashtags = generateHashtags(transcript);
+    var seoEval = seoScore(titles[0] || "", description, tags);
+    var thumbIdeas = generateThumbnailIdeas(transcript);
+    var items = titles.map(function (t) { return { title: t, score: seoEval.score }; });
+    var schedule = platforms.length ? buildSchedule(items, platforms, new Date()) : [];
+    return {
+      cues: cues, srtText: srtText, vttText: vttText, titles: titles, description: description,
+      tags: tags, hashtags: hashtags, seoEval: seoEval, thumbIdeas: thumbIdeas, schedule: schedule
+    };
+  }
+
+  function selectedPlatforms() {
+    return Array.from(document.querySelectorAll('#platform-grid input[type="checkbox"]:checked'))
+      .map(function (el) { return el.value; });
+  }
+
+  function generate() {
+    var transcript = document.getElementById("transcript-input").value.trim();
+    if (!transcript) return;
+    var wpm = parseInt(document.getElementById("wpm-input").value, 10) || 150;
+    var platforms = selectedPlatforms();
+    var data = runPipeline(transcript, platforms, wpm);
+    renderResults(data);
+  }
+
+  document.getElementById("generate-btn").addEventListener("click", generate);
+  document.getElementById("sample-btn").addEventListener("click", function () {
+    document.getElementById("transcript-input").value = SAMPLE_TRANSCRIPT;
+  });
+  document.getElementById("clear-btn").addEventListener("click", function () {
+    document.getElementById("transcript-input").value = "";
+    document.getElementById("output").hidden = true;
+    document.getElementById("empty-state").hidden = false;
+  });
+  document.getElementById("file-input").addEventListener("change", function (e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      document.getElementById("transcript-input").value = String(reader.result);
+    };
+    reader.readAsText(file);
+  });
+
+  // Open in a realistic working state: pre-filled sample + generated results.
+  document.getElementById("transcript-input").value = SAMPLE_TRANSCRIPT;
+  generate();
+})();
+</script>
 </body>
 </html>
